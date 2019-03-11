@@ -66,14 +66,20 @@ class Index extends Component {
     navigationBarTitleText: '首页'
   }
 
+  constructor (props) {
+    super(props)
+    this.state = { groups: [] }
+  }
+
   componentWillReceiveProps (nextProps) {
     console.log(this.props, nextProps)
   }
 
   componentWillUnmount () { }
 
-  componentDidShow () {
-    db.collection('groups')
+  async componentDidShow () {
+    const {data} = await db.collection('groups').get()
+    this.setState({ groups: data })
   }
 
   componentDidHide () { }
@@ -83,9 +89,12 @@ class Index extends Component {
   }
 
   render () {
+    const { groups } = this.state
     return (
       <View className='index'>
-        <View><Text>Hello, World</Text></View>
+        {
+          groups.map(group => <View><Text>{group.name}</Text></View>)
+        }
         <Navigator
           url="/pages/GroupForm/index"
         >

@@ -3,6 +3,7 @@ if (!wx.cloud) {
 } else {
   wx.cloud.init({
     traceUser: true,
+    env: 'developme-f7bdb',
   })
 }
 

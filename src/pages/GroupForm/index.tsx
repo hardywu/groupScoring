@@ -4,6 +4,7 @@ import { View, Form, Input, Button, Text } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
+import { db } from '../../utils'
 
 import './index.css'
 
@@ -75,8 +76,12 @@ class Index extends Component {
 
   componentDidHide () { }
 
-  formSubmit = e => {
-    console.log(e)
+  async formSubmit (e: any) {
+    const { value } = e.detail
+    console.log(value)
+    await db.collection('groups').add({
+      data: value,
+    })
   }
 
   formReset = e => {
@@ -88,7 +93,8 @@ class Index extends Component {
       <Form onSubmit={this.formSubmit} onReset={this.formReset} >
         <View className='index'>
           <Text>小组名称</Text>
-          <Input type='text' placeholder='杭州发动机救援队' />
+          <Input type='text' name='name' placeholder='杭州发动机救援队' />
+          <Button formType='submit'>创建</Button>
         </View>
       </Form>
     )
