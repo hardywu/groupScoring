@@ -1,10 +1,9 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Button, Text, Navigator } from '@tarojs/components'
+import { View, Form, Input, Button, Text } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
-import { db } from '../../utils'
 
 import './index.css'
 
@@ -72,26 +71,26 @@ class Index extends Component {
 
   componentWillUnmount () { }
 
-  componentDidShow () {
-    db.collection('groups')
-  }
+  componentDidShow () { }
 
   componentDidHide () { }
 
-  goToCreateGroup() {
-    wx.navigateTo({ url: ''})
+  formSubmit = e => {
+    console.log(e)
+  }
+
+  formReset = e => {
+    console.log(e)
   }
 
   render () {
     return (
-      <View className='index'>
-        <View><Text>Hello, World</Text></View>
-        <Navigator
-          url="/pages/GroupForm/index"
-        >
-          创建小组
-        </Navigator>
-      </View>
+      <Form onSubmit={this.formSubmit} onReset={this.formReset} >
+        <View className='index'>
+          <Text>小组名称</Text>
+          <Input type='text' placeholder='杭州发动机救援队' />
+        </View>
+      </Form>
     )
   }
 }
