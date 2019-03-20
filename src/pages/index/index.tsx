@@ -1,6 +1,7 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Button, Text, Navigator } from '@tarojs/components'
+import { View, Text, Navigator } from '@tarojs/components'
+import { AtButton } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
@@ -93,12 +94,12 @@ class Index extends Component {
     return (
       <View className='index'>
         {
-          groups.map(group => <View><Text>{group.name}</Text></View>)
+          groups.map(group => <View key={group.id}><Text>{group.name}</Text></View>)
         }
-        <Navigator
-          url="/pages/GroupForm/index"
-        >
-          创建小组
+        <Navigator url="/pages/GroupForm/index">
+          <AtButton type='primary'>
+            创建小组
+          </AtButton>
         </Navigator>
       </View>
     )

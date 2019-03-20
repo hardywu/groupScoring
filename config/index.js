@@ -33,6 +33,7 @@ const config = {
     }
   },
   weapp: {
+    esnextModules: ['taro-ui'],
     module: {
       postcss: {
         autoprefixer: {
@@ -68,6 +69,7 @@ const config = {
     }
   },
   h5: {
+    esnextModules: ['taro-ui'],
     publicPath: '/',
     staticDirectory: 'static',
     module: {

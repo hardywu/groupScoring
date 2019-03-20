@@ -1,12 +1,11 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Form, Input, Button, Text } from '@tarojs/components'
+import { View, Form, Input, Text } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
+import { AtButton } from 'taro-ui'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
 import { db } from '../../utils'
-
-import './index.css'
 
 // #region 书写注意
 //
@@ -94,7 +93,7 @@ class Index extends Component {
         <View className='index'>
           <Text>小组名称</Text>
           <Input type='text' name='name' placeholder='杭州发动机救援队' />
-          <Button formType='submit'>创建</Button>
+          <AtButton formType='submit'>创建</AtButton>
         </View>
       </Form>
     )
