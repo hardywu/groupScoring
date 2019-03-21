@@ -1,8 +1,8 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Form, Input, Text } from '@tarojs/components'
+import { Text, View } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
-import { AtButton } from 'taro-ui'
+import { AtButton, AtForm, AtInput, AtTextarea } from 'taro-ui'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
 import { db } from '../../utils'
@@ -31,7 +31,9 @@ type PageDispatchProps = {
 
 type PageOwnProps = {}
 
-type PageState = {}
+type PageState = {
+  name: string
+}
 
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
 
@@ -65,6 +67,11 @@ class Index extends Component {
     navigationBarTitleText: '首页'
   }
 
+  constructor() {
+    super(...arguments)
+    this.state = { name: '', desc: '' }
+  }
+
   componentWillReceiveProps (nextProps) {
     console.log(this.props, nextProps)
   }
@@ -75,11 +82,10 @@ class Index extends Component {
 
   componentDidHide () { }
 
-  async formSubmit (e: any) {
-    const { value } = e.detail
-    console.log(value)
+  async formSubmit () {
+    const { name, desc } = this.state
     await db.collection('groups').add({
-      data: value,
+      data: {name, desc},
     })
   }
 
@@ -88,14 +94,26 @@ class Index extends Component {
   }
 
   render () {
+    const { name, desc } = this.state
     return (
-      <Form onSubmit={this.formSubmit} onReset={this.formReset} >
-        <View className='index'>
-          <Text>小组名称</Text>
-          <Input type='text' name='name' placeholder='杭州发动机救援队' />
-          <AtButton formType='submit'>创建</AtButton>
+      <AtForm onSubmit={this.formSubmit} onReset={this.formReset}>
+        <View>
+          小组名称
         </View>
-      </Form>
+        <AtInput
+          type='text' name='name'
+          placeholder='杭州发动机救援队'
+          value={name}
+          onChange={val => this.setState({ name: val })}
+        />
+        <AtTextarea
+          value={desc}
+          onChange={e => this.setState({ desc: e.target.value })}
+          maxLength={200}
+          placeholder='小组简介...'
+        />
+        <AtButton type='primary' formType='submit'>创建</AtButton>
+      </AtForm>
     )
   }
 }
