@@ -5,7 +5,6 @@ import { AtButton, AtList, AtListItem } from "taro-ui"
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
-import { db } from '../../utils'
 
 import './index.css'
 
@@ -79,7 +78,7 @@ class Index extends Component {
   componentWillUnmount () { }
 
   async componentDidShow () {
-    const {data} = await db.collection('groups').get()
+    const {data} = await Taro.cloud.database().collection('groups').get()
     this.setState({ groups: data })
   }
 

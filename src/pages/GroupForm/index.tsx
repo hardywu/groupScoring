@@ -5,7 +5,6 @@ import { connect } from '@tarojs/redux'
 import { AtButton, AtForm, AtInput, AtTextarea } from 'taro-ui'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
-import { db } from '../../utils'
 
 // #region 书写注意
 //
@@ -84,7 +83,7 @@ class Index extends Component {
 
   async formSubmit () {
     const { name, desc } = this.state
-    await db.collection('groups').add({
+    await Taro.cloud.database().collection('groups').add({
       data: {name, desc},
     })
   }

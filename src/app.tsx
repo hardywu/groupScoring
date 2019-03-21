@@ -43,7 +43,11 @@ class App extends Component {
     }
   }
 
-  componentDidMount () {}
+  componentDidMount () {
+    if (process.env.TARO_ENV === 'weapp') {
+      Taro.cloud.init()
+    }
+  }
 
   componentDidShow () {}
 
