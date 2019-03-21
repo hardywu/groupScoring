@@ -1,5 +1,6 @@
 {
 	"miniprogramRoot": "dist/",
+  "cloudfunctionRoot": "cloud/functions/",
 	"projectname": "groupScoring",
 	"description": "x++ members&#39; scores bookkeeping ",
 	"appid": "wxd1c43e3069f529ef",
