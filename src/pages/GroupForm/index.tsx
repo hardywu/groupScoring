@@ -17,9 +17,6 @@ import { add, minus, asyncAdd } from '../../actions/counter'
 // #endregion
 
 type PageStateProps = {
-  counter: {
-    num: number
-  }
 }
 
 type PageDispatchProps = {
@@ -32,6 +29,8 @@ type PageOwnProps = {}
 
 type PageState = {
   name: string
+  desc: string
+  loading: boolean
 }
 
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
@@ -40,9 +39,7 @@ interface Index {
   props: IProps;
 }
 
-@connect(({ counter }) => ({
-  counter
-}), (dispatch) => ({
+@connect(null, (dispatch) => ({
   add () {
     dispatch(add())
   },
@@ -68,39 +65,33 @@ class Index extends Component {
 
   constructor() {
     super(...arguments)
-    this.state = { name: '', desc: '' }
+    this.state = { name: '', desc: '', loading: false }
+    this.formSubmit = this.formSubmit.bind(this)
   }
-
-  componentWillReceiveProps (nextProps) {
-    console.log(this.props, nextProps)
-  }
-
-  componentWillUnmount () { }
-
-  componentDidShow () { }
-
-  componentDidHide () { }
 
   async formSubmit () {
     const { name, desc } = this.state
-    await Taro.cloud.database().collection('groups').add({
-      data: {name, desc},
-    })
-  }
-
-  formReset = e => {
-    console.log(e)
+    this.setState({ loading: true })
+    try {
+      await Taro.cloud.callFunction({
+        name: 'createGroup',
+        data: { name, desc },
+      })
+      wx.navigateBack({delta: 1})
+    } catch (error) {
+      this.setState({ loading: false })
+      console.log('er', error)
+    }
   }
 
   render () {
-    const { name, desc } = this.state
+    const { name, desc, loading } = this.state
     return (
-      <AtForm onSubmit={this.formSubmit} onReset={this.formReset}>
-        <View>
-          小组名称
-        </View>
+      <AtForm onSubmit={this.formSubmit}>
         <AtInput
-          type='text' name='name'
+          title='小组名称'
+          type='text'
+          name='name'
           placeholder='杭州发动机救援队'
           value={name}
           onChange={val => this.setState({ name: val })}
@@ -111,7 +102,7 @@ class Index extends Component {
           maxLength={200}
           placeholder='小组简介...'
         />
-        <AtButton type='primary' formType='submit'>创建</AtButton>
+        <AtButton disabled={loading} loading={loading} type='primary' formType='submit'>创建</AtButton>
       </AtForm>
     )
   }
