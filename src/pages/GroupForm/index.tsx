@@ -39,7 +39,7 @@ interface Index {
   props: IProps;
 }
 
-@connect(null, (dispatch) => ({
+@connect(() => ({}), (dispatch) => ({
   add () {
     dispatch(add())
   },
