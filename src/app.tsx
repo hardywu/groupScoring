@@ -34,6 +34,7 @@ class App extends Component {
     pages: [
       'pages/Login',
       'pages/index/index',
+      'pages/Group',
       'pages/GroupForm/index',
     ],
     window: {
