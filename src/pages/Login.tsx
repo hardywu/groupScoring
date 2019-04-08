@@ -53,7 +53,7 @@ class Index extends Component {
 
   constructor() {
     super(...arguments)
-    this.state = { loading: true }
+    this.state = { loading: true, error: null }
   }
 
   async componentDidMount() {
@@ -61,7 +61,7 @@ class Index extends Component {
       const { userInfo } = await Taro.getUserInfo()
       await this.login(userInfo)
     } catch (error) {
-      this.setState({ loading: false })
+      this.setState({ error, loading: false })
     }
   }
 
@@ -70,7 +70,9 @@ class Index extends Component {
       name: 'login',
       data: { nickName: userInfo.nickName },
     })
-    Taro.setStorageSync('me', result)
+    console.log('er', result)
+    Taro.setStorageSync('me', { ...userInfo, _id: result._id })
+    Taro.setStorageSync('myMemberships', result.memberships)
     Taro.reLaunch({ url: '/pages/index/index' })
   }
 

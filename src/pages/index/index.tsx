@@ -1,11 +1,11 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { View, Text, Navigator } from '@tarojs/components'
-import { AtButton, AtList, AtListItem } from "taro-ui"
+import { AtButton, AtList, AtListItem, AtLoadMore } from "taro-ui"
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
-
+import { db } from '../../utils'
 import './index.css'
 
 // #region 书写注意
@@ -68,43 +68,65 @@ class Index extends Component {
 
   constructor (props) {
     super(props)
-    this.state = { groups: [] }
+    const me = Taro.getStorageSync('me')
+    this.state = { groups: null, me }
   }
-
-  componentWillReceiveProps (nextProps) {
-    console.log(this.props, nextProps)
-  }
-
-  componentWillUnmount () { }
 
   async componentDidShow () {
-    const {data} = await Taro.cloud.database().collection('groups').get()
+    const { data } = await db.collection('groups').get()
     this.setState({ groups: data })
   }
 
-  componentDidHide () { }
-
-  goToCreateGroup() {
-    wx.navigateTo({ url: ''})
+  async handleClick(group) {
+    const me = Taro.getStorageSync('me')
+    const memberships = Taro.getStorageSync('myMemberships')
+    try {
+      if (!(memberships.map(m => m.groupId).includes(group._id))) {
+        console.log('e', memberships)
+        await Taro.cloud.callFunction({
+          name: 'joinGroup',
+          data: { groupId: group._id, nickName: me.nickName },
+        })
+      }
+      Taro.navigateTo({ url: '/pages/Group?id='+ group._id })
+    } catch (error) {
+      // this.setState({ loading: false })
+      console.log('er', error)
+    }
   }
 
   render () {
     const { groups } = this.state
     return (
       <View className='index'>
-        <AtList>
         {
-          groups.map(
-            group =>
-              <AtListItem key={group.id} title={group.name} note={group.desc} />
-          )
+          groups ?
+          <AtList>
+            {
+              groups.map(
+                group =>
+                  <AtListItem
+                    key={group.id}
+                    title={group.name}
+                    onClick={() => this.handleClick(group)}
+                    note={group.desc} />
+              )
+            }
+          </AtList>
+          :
+          <AtLoadMore status='loading' />
         }
-        </AtList>
         <Navigator url="/pages/GroupForm/index">
           <AtButton type='primary'>
             创建小组
           </AtButton>
         </Navigator>
+        <AtButton
+          openType="openSetting"
+          lang="zh_CN"
+        >
+          setting
+        </AtButton>
       </View>
     )
   }

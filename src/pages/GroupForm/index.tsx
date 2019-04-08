@@ -70,13 +70,17 @@ class Index extends Component {
   }
 
   async formSubmit () {
+    const me = Taro.getStorageSync('me')
     const { name, desc } = this.state
     this.setState({ loading: true })
     try {
-      await Taro.cloud.callFunction({
+      const { result } = await Taro.cloud.callFunction({
         name: 'createGroup',
-        data: { name, desc },
+        data: { name, desc, nickName: me.nickName },
       })
+      const memberships = Taro.getStorageSync('myMemberships')
+      memberships.push(result)
+      Taro.setStorageSync('myMemberships', memberships)
       wx.navigateBack({delta: 1})
     } catch (error) {
       this.setState({ loading: false })

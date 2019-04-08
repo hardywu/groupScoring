@@ -3,23 +3,28 @@ const cloud = require('wx-server-sdk')
 
 cloud.init()
 const db = cloud.database()
+const _ = db.command
 
 // 云函数入口函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  const { groupId } = event
-  const _ = db.command
+  const { groupId, nickName } = event
   try {
-    await db.collection('users').doc(wxContext.OPENID).update({
+    const data = await db.collection('memberships').add({
       data: {
-        groups: _.push([groupId]),
+        groupId,
+        userId: wxContext.OPENID,
+        nickName,
+        score: 0,
+        role: 'member',
       },
     })
-    return await db.collection('groups').doc(groupId).update({
+    await db.collection('groups').doc(groupId).update({
       data: {
-        members: _.push([{ id: wxContext.OPENID, score: 0 }])
+        membersCount: _.inc(1)
       }
     })
+    return data
   } catch (e) {
     console.log(e)
   }
