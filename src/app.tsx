@@ -32,6 +32,7 @@ class App extends Component {
   config: cloudConfig = {
     cloud: true,
     pages: [
+      'pages/Login',
       'pages/index/index',
       'pages/GroupForm/index',
     ],
