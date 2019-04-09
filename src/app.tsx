@@ -35,6 +35,8 @@ class App extends Component {
       'pages/Login',
       'pages/index/index',
       'pages/Group',
+      'pages/TaskList',
+      'pages/AddTask',
       'pages/GroupForm/index',
     ],
     window: {

@@ -35,20 +35,22 @@ interface Index {
 
 class Index extends Component {
 
-    /**
+  /*
    * 指定config的类型声明为: Taro.Config
    *
    * 由于 typescript 对于 object 类型推导只能推出 Key 的基本类型
    * 对于像 navigationBarTextStyle: 'black' 这样的推导出的类型是 string
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
-    config: Config = {
+  config: Config = {
     navigationBarTitleText: '小组'
   }
 
   constructor() {
     super(...arguments)
-    this.state = { group: null, loading: true }
+    const group = Taro.getStorageSync('group')
+    Taro.setNavigationBarTitle({ title: (group || {}).name || '' })
+    this.state = { members: null, loading: true }
   }
 
   async componentDidMount() {
@@ -58,33 +60,47 @@ class Index extends Component {
         name: 'fetchGroup',
         data: { id },
       })
-      console.log('rew',result)
-      this.setState({ loading: false, group: result })
+      Taro.setStorageSync('group', result.group)
+      Taro.setStorageSync('members', result.memberships)
+      this.setState({
+        loading: false,
+        members: result.memberships
+      })
     } catch (error) {
       this.setState({ loading: false })
     }
   }
 
-  render () {
-    const { group } = this.state
+  componentDidShow() {
+    const members = Taro.getStorageSync('members')
+    this.setState({ members })
+  }
 
-    return group ?
+
+  handleClick(idx) {
+    Taro.navigateTo({ url: '/pages/TaskList?memberIdx=' + idx})
+  }
+
+  render () {
+    const { members } = this.state
+
+    return members ?
       <View>
-        <Text>{group.name}</Text>
         <AtList>
           {
-            group.memberships.map(
-              member =>
+            members.map(
+              (member, idx) =>
                 <AtListItem
                   key={member._id}
                   extraText={`分数： ${member.score}`}
                   title={member.nickName}
+                  onClick={() => this.handleClick(idx)}
+                  arrow='right'
                 />
             )
           }
 
         </AtList>
-        <Text>{}</Text>
       </View>
       :
       <AtLoadMore status="loading" />

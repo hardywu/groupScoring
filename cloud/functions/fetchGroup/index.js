@@ -14,7 +14,7 @@ exports.main = async (event, context) => {
                            .field({userId: false})
                            .where({groupId: id})
                            .get()
-    return { ...group, memberships: data }
+    return { group, memberships: data }
   } catch (error) {
     console.log(error)
   }

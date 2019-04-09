@@ -2,7 +2,7 @@ import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { Text, View } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
-import { AtButton, AtAvatar, AtLoadMore } from 'taro-ui'
+import { AtButton, AtList, AtListItem, AtAvatar, AtLoadMore } from 'taro-ui'
 
 
 // #region 书写注意
@@ -19,16 +19,11 @@ type PageStateProps = {
 }
 
 type PageDispatchProps = {
-  add: () => void
-  dec: () => void
-  asyncAdd: () => any
 }
 
 type PageOwnProps = {}
 
 type PageState = {
-  name: string
-  desc: string
   loading: boolean
 }
 
@@ -48,51 +43,51 @@ class Index extends Component {
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
     config: Config = {
-    navigationBarTitleText: '授权登录'
+    navigationBarTitleText: '完成任务表'
   }
 
   constructor() {
     super(...arguments)
-    this.state = { loading: true, error: null }
+    const { memberIdx } = this.$router.params
+    const members = Taro.getStorageSync('members')
+    const member = members[memberIdx]
+    Taro.setNavigationBarTitle({ title: (member || {}).nickName || '' })
+    this.state = { member }
   }
 
-  async componentDidMount() {
-    try {
-      const { userInfo } = await Taro.getUserInfo()
-      await this.login(userInfo)
-    } catch (error) {
-      this.setState({ error, loading: false })
-    }
+  componentDidShow() {
+    const { memberIdx } = this.$router.params
+    const members = Taro.getStorageSync('members')
+    const member = members[memberIdx]
+    this.setState({ member })
   }
 
-  async login(userInfo) {
-    const { result } = await Taro.cloud.callFunction({
-      name: 'login',
-      data: { nickName: userInfo.nickName },
+  handleClick() {
+    const { memberIdx } = this.$router.params
+    Taro.navigateTo({
+      url: '/pages/AddTask?memberIdx=' + memberIdx
     })
-    Taro.setStorageSync('me', { ...userInfo, _id: result._id })
-    Taro.setStorageSync('myMemberships', result.memberships)
-    Taro.reLaunch({ url: '/pages/index/index' })
-  }
-
-  async goToFront({ detail }) {
-    if (detail.userInfo) await this.login(detail.userInfo)
   }
 
   render () {
-    const { loading } = this.state
-    if (loading) return <AtLoadMore status="loading" />
+    const { member } = this.state
 
     return (
       <View>
-        <AtAvatar circle />
-        <AtButton
-          openType="getUserInfo"
-          lang="zh_CN"
-          onGetUserInfo={this.goToFront}
-        >
-          授权登录
-        </AtButton>
+        <AtButton onClick={this.handleClick}>添加任务</AtButton>
+        <AtList>
+          {
+            (member.tasks || []).map(
+              (task, idx)=>
+                <AtListItem
+                  key={idx}
+                  extraText={`分数： ${task.score}`}
+                  title={task.name}
+                />
+            )
+          }
+
+        </AtList>
       </View>
     )
   }

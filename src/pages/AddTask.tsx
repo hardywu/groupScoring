@@ -1,8 +1,8 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { Text, View } from '@tarojs/components'
+import { Text, View, Label } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
-import { AtButton, AtAvatar, AtLoadMore } from 'taro-ui'
+import { AtButton, AtList, AtInputNumber, AtForm, AtInput } from 'taro-ui'
 
 
 // #region 书写注意
@@ -19,17 +19,14 @@ type PageStateProps = {
 }
 
 type PageDispatchProps = {
-  add: () => void
-  dec: () => void
-  asyncAdd: () => any
 }
 
 type PageOwnProps = {}
 
 type PageState = {
-  name: string
-  desc: string
   loading: boolean
+  name: string
+  score: number
 }
 
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
@@ -48,52 +45,62 @@ class Index extends Component {
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
     config: Config = {
-    navigationBarTitleText: '授权登录'
+    navigationBarTitleText: '添加任务'
   }
 
   constructor() {
     super(...arguments)
-    this.state = { loading: true, error: null }
+    this.state = { name: '', score: 1, loading: false  }
   }
 
-  async componentDidMount() {
+  async addTask() {
+    this.setState({ loading: true })
+    const { memberIdx } = this.$router.params
+    const members = Taro.getStorageSync('members')
+    const member = members[memberIdx]
+    const { name, score } = this.state
     try {
-      const { userInfo } = await Taro.getUserInfo()
-      await this.login(userInfo)
+      const { result } = await Taro.cloud.callFunction({
+        name: 'addTask',
+        data: { id: member._id, name, score, status: 'done' },
+      })
+
+      members[memberIdx] = result
+      Taro.setStorageSync('members', members)
+      Taro.navigateBack({ delta: 1 })
     } catch (error) {
-      this.setState({ error, loading: false })
+      this.setState({ loading: false })
     }
   }
 
-  async login(userInfo) {
-    const { result } = await Taro.cloud.callFunction({
-      name: 'login',
-      data: { nickName: userInfo.nickName },
-    })
-    Taro.setStorageSync('me', { ...userInfo, _id: result._id })
-    Taro.setStorageSync('myMemberships', result.memberships)
-    Taro.reLaunch({ url: '/pages/index/index' })
-  }
-
-  async goToFront({ detail }) {
-    if (detail.userInfo) await this.login(detail.userInfo)
-  }
-
   render () {
-    const { loading } = this.state
-    if (loading) return <AtLoadMore status="loading" />
+    const { name, score, loading } = this.state
 
     return (
-      <View>
-        <AtAvatar circle />
-        <AtButton
-          openType="getUserInfo"
-          lang="zh_CN"
-          onGetUserInfo={this.goToFront}
-        >
-          授权登录
-        </AtButton>
-      </View>
+      <AtForm onSubmit={this.addTask}>
+        <AtInput
+          title='任务名'
+          type='text'
+          name='name'
+          placeholder='值日'
+          value={name}
+          onChange={val => this.setState({ name: val })}
+        />
+        <View className='at-input'><View className='at-input__container'>
+          <Label className='at-input__title'>任务积分</Label>
+
+          <AtInputNumber
+            type='number'
+            size='lg'
+            min={0}
+            step={1}
+            value={score}
+            onChange={val => this.setState({ score: val })}
+          />
+        </View></View>
+
+        <AtButton disabled={loading} loading={loading} type='primary' formType='submit'>创建</AtButton>
+      </AtForm>
     )
   }
 }

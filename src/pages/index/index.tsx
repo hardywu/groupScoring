@@ -88,6 +88,7 @@ class Index extends Component {
           data: { groupId: group._id, nickName: me.nickName },
         })
       }
+      Taro.setStorageSync('group', group)
       Taro.navigateTo({ url: '/pages/Group?id='+ group._id })
     } catch (error) {
       // this.setState({ loading: false })
@@ -121,12 +122,6 @@ class Index extends Component {
             创建小组
           </AtButton>
         </Navigator>
-        <AtButton
-          openType="openSetting"
-          lang="zh_CN"
-        >
-          setting
-        </AtButton>
       </View>
     )
   }
