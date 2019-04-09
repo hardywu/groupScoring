@@ -49,7 +49,10 @@ class App extends Component {
 
   componentDidMount () {
     if (process.env.TARO_ENV === 'weapp') {
-      Taro.cloud.init()
+      Taro.cloud.init({
+        env: process.env.NODE_ENV === 'production' ? 'release-f7bdb3' : 'developme-f7bdb',
+        traceUser: true,
+      })
     }
   }
 
